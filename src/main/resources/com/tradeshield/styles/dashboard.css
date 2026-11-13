@@ -1,0 +1,154 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: #12191f;
+}
+
+.app-shell {
+    -fx-background-color: #12191f;
+}
+
+.sidebar {
+    -fx-background-color: #172128;
+    -fx-pref-width: 238px;
+    -fx-border-color: transparent #26343d transparent transparent;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.brand {
+    -fx-text-fill: #edf7f1;
+    -fx-font-size: 25px;
+    -fx-font-weight: 700;
+}
+
+.brand-subtitle, .environment-label, .metric-title, .muted-label {
+    -fx-text-fill: #82939c;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 1px;
+}
+
+.navigation {
+    -fx-padding: 36px 0 0 0;
+}
+
+.navigation-button, .navigation-button-active {
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-padding: 11px 14px;
+}
+
+.navigation-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #a8b6bd;
+}
+
+.navigation-button:hover {
+    -fx-background-color: #203039;
+    -fx-text-fill: #f1f7f4;
+}
+
+.navigation-button-active {
+    -fx-background-color: #1f5944;
+    -fx-text-fill: #66e1a4;
+    -fx-font-weight: 700;
+}
+
+.workspace {
+    -fx-background-color: #12191f;
+}
+
+.page-title {
+    -fx-text-fill: #edf7f1;
+    -fx-font-size: 27px;
+    -fx-font-weight: 700;
+}
+
+.page-description, .metric-detail, .activity-detail {
+    -fx-text-fill: #8da0a9;
+    -fx-font-size: 13px;
+}
+
+.metric-card, .content-panel {
+    -fx-background-color: #1a252c;
+    -fx-background-radius: 12px;
+    -fx-border-color: #273841;
+    -fx-border-radius: 12px;
+}
+
+.metric-card {
+    -fx-padding: 21px;
+}
+
+.metric-value {
+    -fx-text-fill: #eff9f3;
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+.content-panel {
+    -fx-padding: 22px;
+}
+
+.panel-title {
+    -fx-text-fill: #edf7f1;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.status-line, .status-line .label, .quote-row, .quote-row .label, .activity-name, .activity-row .label {
+    -fx-text-fill: #dbe7e1;
+    -fx-font-size: 13px;
+}
+
+.risk-progress {
+    -fx-accent: #3bd38a;
+}
+
+.risk-progress .track {
+    -fx-background-color: #293941;
+    -fx-background-radius: 8px;
+}
+
+.risk-progress .bar {
+    -fx-background-color: #3bd38a;
+    -fx-background-radius: 8px;
+    -fx-padding: 4px;
+}
+
+.secondary-button {
+    -fx-background-color: #26363e;
+    -fx-background-radius: 7px;
+    -fx-text-fill: #82939c;
+    -fx-padding: 10px 14px;
+}
+
+.quote-row, .activity-row {
+    -fx-padding: 10px 0;
+    -fx-border-color: transparent transparent #293841 transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.quote-symbol, .activity-name {
+    -fx-font-weight: 700;
+}
+
+.positive-change {
+    -fx-text-fill: #48dc98;
+    -fx-font-weight: 700;
+}
+
+.negative-change {
+    -fx-text-fill: #e88b8b;
+    -fx-font-weight: 700;
+}
+
+.state-badge {
+    -fx-background-color: #1e4e3b;
+    -fx-background-radius: 10px;
+    -fx-padding: 4px 9px;
+    -fx-text-fill: #62dfa2;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+}
