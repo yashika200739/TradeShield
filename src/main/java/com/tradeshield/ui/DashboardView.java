@@ -1,11 +1,21 @@
 package com.tradeshield.ui;
 
+import com.tradeshield.model.Order;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -22,6 +32,14 @@ import javafx.scene.shape.Circle;
  */
 public class DashboardView {
 
+    private final ObservableList<Order> submittedOrders = FXCollections.observableArrayList();
+    private final TextField symbolField = new TextField();
+    private final ComboBox<Order.OrderType> orderTypeBox = new ComboBox<>();
+    private final TextField quantityField = new TextField();
+    private final TextField priceField = new TextField();
+    private final Label orderMessage = new Label();
+    private int nextOrderNumber = 1;
+
     /**
      * Creates the complete dashboard layout.
      *
@@ -31,7 +49,11 @@ public class DashboardView {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("app-shell");
         root.setLeft(createSidebar());
-        root.setCenter(createWorkspace());
+
+        ScrollPane workspaceScrollPane = new ScrollPane(createWorkspace());
+        workspaceScrollPane.setFitToWidth(true);
+        workspaceScrollPane.getStyleClass().add("dashboard-scroll");
+        root.setCenter(workspaceScrollPane);
         return root;
     }
 
@@ -65,6 +87,7 @@ public class DashboardView {
     }
 
     /** Builds the central dashboard area. */
+    // Yashika - Dashboard UI Enhancement
     private VBox createWorkspace() {
         Label greeting = new Label("Good morning, Analyst");
         greeting.getStyleClass().add("page-title");
@@ -87,10 +110,179 @@ public class DashboardView {
 
         VBox activityPanel = createActivityPanel();
 
-        VBox workspace = new VBox(24, heading, metrics, contentPanels, activityPanel);
+        VBox workspace = new VBox(24, heading, metrics, createOrderManagementPanel(), contentPanels, activityPanel);
         workspace.getStyleClass().add("workspace");
         workspace.setPadding(new Insets(36));
         return workspace;
+    }
+
+    /** Creates the order entry form and the in-memory order table. */
+    private VBox createOrderManagementPanel() {
+        Label title = new Label("Simulated order management");
+        title.getStyleClass().add("panel-title");
+
+        Label description = new Label("Enter an order to add it to this session's simulated order book.");
+        description.getStyleClass().add("panel-description");
+
+        configureOrderForm();
+
+        HBox form = new HBox(12,
+                formField("Stock symbol", symbolField),
+                formField("Side", orderTypeBox),
+                formField("Quantity", quantityField),
+                formField("Price", priceField),
+                createSubmitButton()
+        );
+        form.getStyleClass().add("order-form");
+        form.setAlignment(Pos.BOTTOM_LEFT);
+
+        orderMessage.getStyleClass().add("order-message");
+        orderMessage.setText("No orders submitted in this session yet.");
+
+        TableView<Order> orderTable = createOrderTable();
+
+        VBox panel = new VBox(12, title, description, form, orderMessage, orderTable);
+        panel.getStyleClass().add("content-panel");
+        return panel;
+    }
+
+    /** Sets prompts and the default BUY choice for the simple order form. */
+    // Yashika - Simulated Order Form
+    private void configureOrderForm() {
+        symbolField.setPromptText("e.g. RELIANCE");
+        quantityField.setPromptText("e.g. 10");
+        priceField.setPromptText("e.g. 2941.70");
+
+        orderTypeBox.getItems().setAll(Order.OrderType.values());
+        orderTypeBox.setValue(Order.OrderType.BUY);
+    }
+
+    /** Wraps a form control with its short label. */
+    private VBox formField(String labelText, Node field) {
+        Label label = new Label(labelText.toUpperCase());
+        label.getStyleClass().add("form-label");
+
+        VBox fieldBox = new VBox(6, label, field);
+        fieldBox.getStyleClass().add("form-field");
+        HBox.setHgrow(fieldBox, Priority.ALWAYS);
+        return fieldBox;
+    }
+
+    /** Creates the button that starts local validation and order submission. */
+    private Button createSubmitButton() {
+        Button submitButton = new Button("Submit Order");
+        submitButton.getStyleClass().add("primary-button");
+        submitButton.setOnAction(event -> submitOrder());
+        return submitButton;
+    }
+
+    // Yashika - Orders Table
+    /** Creates the table columns used to display orders accepted in this session. */
+    private TableView<Order> createOrderTable() {
+        TableColumn<Order, String> idColumn = new TableColumn<>("Order ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+
+        TableColumn<Order, String> symbolColumn = new TableColumn<>("Symbol");
+        symbolColumn.setCellValueFactory(new PropertyValueFactory<>("stockSymbol"));
+
+        TableColumn<Order, Order.OrderType> typeColumn = new TableColumn<>("Type");
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("orderType"));
+
+        TableColumn<Order, Integer> quantityColumn = new TableColumn<>("Quantity");
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+        TableColumn<Order, String> priceColumn = new TableColumn<>("Price");
+        priceColumn.setCellValueFactory(order -> new SimpleStringProperty(
+                String.format("₹%,.2f", order.getValue().getPrice())
+        ));
+
+        TableColumn<Order, Order.OrderStatus> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        TableView<Order> orderTable = new TableView<>(submittedOrders);
+        orderTable.getColumns().addAll(idColumn, symbolColumn, typeColumn, quantityColumn, priceColumn, statusColumn);
+        orderTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        orderTable.setPrefHeight(210);
+        orderTable.setPlaceholder(new Label("Accepted simulated orders will appear here."));
+        orderTable.getStyleClass().add("order-table");
+        return orderTable;
+    }
+
+    /**
+     * Validates the order form and adds one ACCEPTED order when every value is valid.
+     * Invalid values show an error and leave the table unchanged.
+     */
+    private void submitOrder() {
+        String symbol = symbolField.getText().trim().toUpperCase();
+        String quantityText = quantityField.getText().trim();
+        String priceText = priceField.getText().trim();
+
+        // Yashika - Order Input Validation
+        if (symbol.isEmpty() || quantityText.isEmpty() || priceText.isEmpty() || orderTypeBox.getValue() == null) {
+            showOrderError("Please complete every order field.");
+            return;
+        }
+
+        try {
+            int quantity = Integer.parseInt(quantityText);
+            double price = Double.parseDouble(priceText);
+
+            if (quantity <= 0) {
+                showOrderError("Quantity must be greater than zero.");
+                return;
+            }
+
+            if (!Double.isFinite(price) || price <= 0) {
+                showOrderError("Price must be greater than zero.");
+                return;
+            }
+
+            // Yashika - Order Submission
+            Order order = new Order(
+                    createOrderId(),
+                    symbol,
+                    orderTypeBox.getValue(),
+                    quantity,
+                    price,
+                    Order.OrderStatus.ACCEPTED
+            );
+            submittedOrders.add(order);
+            clearOrderForm();
+            showOrderSuccess("Order " + order.getOrderId() + " accepted for simulation.");
+        } catch (NumberFormatException exception) {
+            showOrderError("Quantity must be a whole number and price must be a number.");
+        }
+    }
+
+    /** Creates readable, increasing identifiers for this running application session. */
+    private String createOrderId() {
+        return String.format("SIM-%04d", nextOrderNumber++);
+    }
+
+    /** Restores the form after a valid order is added to the table. */
+    private void clearOrderForm() {
+        symbolField.clear();
+        quantityField.clear();
+        priceField.clear();
+        orderTypeBox.setValue(Order.OrderType.BUY);
+    }
+
+    /** Displays a red validation message without adding an order. */
+    private void showOrderError(String message) {
+        orderMessage.setText(message);
+        orderMessage.getStyleClass().remove("order-message-success");
+        if (!orderMessage.getStyleClass().contains("order-message-error")) {
+            orderMessage.getStyleClass().add("order-message-error");
+        }
+    }
+
+    /** Displays a green confirmation after a valid order is added. */
+    private void showOrderSuccess(String message) {
+        orderMessage.setText(message);
+        orderMessage.getStyleClass().remove("order-message-error");
+        if (!orderMessage.getStyleClass().contains("order-message-success")) {
+            orderMessage.getStyleClass().add("order-message-success");
+        }
     }
 
     /** Creates a summary card with a label, value, and supporting text. */

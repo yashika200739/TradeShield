@@ -1,3 +1,4 @@
+/* Yashika[2510991179] - Dashboard Styling */
 .root {
     -fx-font-family: "Segoe UI", Arial, sans-serif;
     -fx-background-color: #12191f;
@@ -59,6 +60,16 @@
     -fx-background-color: #12191f;
 }
 
+.dashboard-scroll {
+    -fx-background: #12191f;
+    -fx-background-color: #12191f;
+    -fx-border-color: transparent;
+}
+
+.dashboard-scroll > .viewport {
+    -fx-background-color: #12191f;
+}
+
 .page-title {
     -fx-text-fill: #edf7f1;
     -fx-font-size: 27px;
@@ -95,6 +106,106 @@
     -fx-text-fill: #edf7f1;
     -fx-font-size: 16px;
     -fx-font-weight: 700;
+}
+
+.panel-description {
+    -fx-text-fill: #8da0a9;
+    -fx-font-size: 13px;
+}
+
+.order-form {
+    -fx-padding: 6px 0 0 0;
+}
+
+.form-field {
+    -fx-min-width: 140px;
+}
+
+.form-label {
+    -fx-text-fill: #82939c;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+}
+
+.text-field, .combo-box {
+    -fx-background-color: #10181d;
+    -fx-background-radius: 7px;
+    -fx-border-color: #334750;
+    -fx-border-radius: 7px;
+    -fx-text-fill: #edf7f1;
+    -fx-prompt-text-fill: #657780;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #edf7f1;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #1a252c;
+}
+
+.combo-box-popup .list-cell:filled:hover {
+    -fx-background-color: #275940;
+}
+
+.primary-button {
+    -fx-background-color: #2c9b65;
+    -fx-background-radius: 7px;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+    -fx-padding: 10px 16px;
+    -fx-text-fill: #07120d;
+}
+
+.primary-button:hover {
+    -fx-background-color: #48c784;
+}
+
+.order-message {
+    -fx-font-size: 12px;
+}
+
+.order-message-error {
+    -fx-text-fill: #f18b8b;
+}
+
+.order-message-success {
+    -fx-text-fill: #53de98;
+}
+
+.order-table {
+    -fx-background-color: transparent;
+    -fx-border-color: #2b3d46;
+    -fx-border-radius: 7px;
+}
+
+.order-table .column-header-background {
+    -fx-background-color: #203039;
+}
+
+.order-table .column-header, .order-table .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent #30424b #30424b transparent;
+}
+
+.order-table .column-header .label {
+    -fx-text-fill: #a9babf;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.order-table .table-row-cell {
+    -fx-background-color: #172128;
+    -fx-border-color: transparent transparent #293941 transparent;
+}
+
+.order-table .table-row-cell:filled:selected {
+    -fx-background-color: #235940;
+}
+
+.order-table .table-cell {
+    -fx-text-fill: #dbe7e1;
+    -fx-padding: 10px;
 }
 
 .status-line, .status-line .label, .quote-row, .quote-row .label, .activity-name, .activity-row .label {
