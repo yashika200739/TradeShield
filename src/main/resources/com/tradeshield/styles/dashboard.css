@@ -263,3 +263,36 @@
     -fx-font-size: 10px;
     -fx-font-weight: 700;
 }
+
+.login-screen {
+    -fx-background-color: #12191f;
+}
+
+.login-card {
+    -fx-background-color: #1a252c;
+    -fx-background-radius: 16px;
+    -fx-border-color: #2b3d46;
+    -fx-border-radius: 16px;
+}
+
+.login-brand {
+    -fx-text-fill: #edf7f1;
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+}
+
+.login-title {
+    -fx-text-fill: #edf7f1;
+    -fx-font-size: 23px;
+    -fx-font-weight: 700;
+    -fx-padding: 18px 0 0 0;
+}
+
+.login-message {
+    -fx-font-size: 12px;
+    -fx-min-height: 18px;
+}
+
+.login-message-error {
+    -fx-text-fill: #f18b8b;
+}
