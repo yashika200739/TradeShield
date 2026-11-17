@@ -21,13 +21,18 @@ public class LoginView {
 
     private final LoginService loginService;
     private final Consumer<String> onLoginSuccess;
+    private final Runnable onSignupRequested;
+    private final String notice;
     private final TextField emailField = new TextField();
     private final PasswordField passwordField = new PasswordField();
     private final Label message = new Label();
 
-    public LoginView(LoginService loginService, Consumer<String> onLoginSuccess) {
+    public LoginView(LoginService loginService, Consumer<String> onLoginSuccess,
+                     Runnable onSignupRequested, String notice) {
         this.loginService = loginService;
         this.onLoginSuccess = onLoginSuccess;
+        this.onSignupRequested = onSignupRequested;
+        this.notice = notice;
     }
 
     public Parent create() {
@@ -53,13 +58,22 @@ public class LoginView {
         loginButton.setOnAction(event -> attemptLogin());
         passwordField.setOnAction(event -> attemptLogin());
 
+        // Yashika[2510991179] - Signup
+        Button signupButton = new Button("Create an account");
+        signupButton.getStyleClass().add("signup-link");
+        signupButton.setOnAction(event -> onSignupRequested.run());
+
         message.getStyleClass().add("login-message");
         message.setWrapText(true);
+        if (notice != null && !notice.isBlank()) {
+            message.setText(notice);
+            message.getStyleClass().add("login-message-success");
+        }
 
         VBox card = new VBox(14, brand, subtitle, title, description,
                 labeledField("EMAIL ADDRESS", emailField),
                 labeledField("PASSWORD", passwordField),
-                message, loginButton);
+                message, loginButton, signupButton);
         card.getStyleClass().add("login-card");
         card.setMaxWidth(440);
         card.setPadding(new Insets(36));
@@ -109,6 +123,7 @@ public class LoginView {
 
     private void showError(String text) {
         message.setText(text);
+        message.getStyleClass().remove("login-message-success");
         if (!message.getStyleClass().contains("login-message-error")) {
             message.getStyleClass().add("login-message-error");
         }

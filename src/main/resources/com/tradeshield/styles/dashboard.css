@@ -296,3 +296,29 @@
 .login-message-error {
     -fx-text-fill: #f18b8b;
 }
+
+/* Yashika[2510991179] - Signup Styling */
+.signup-link {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-text-fill: #66e1a4;
+    -fx-font-size: 12px;
+    -fx-padding: 4px;
+}
+
+.signup-link:hover {
+    -fx-text-fill: #8cf0bb;
+}
+
+.signup-message {
+    -fx-font-size: 12px;
+    -fx-min-height: 18px;
+}
+
+.signup-message-error {
+    -fx-text-fill: #f18b8b;
+}
+
+.login-message-success {
+    -fx-text-fill: #53de98;
+}

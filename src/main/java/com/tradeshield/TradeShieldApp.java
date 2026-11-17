@@ -1,8 +1,10 @@
 package com.tradeshield;
 
 import com.tradeshield.auth.LoginService;
+import com.tradeshield.auth.SignupService;
 import com.tradeshield.ui.DashboardView;
 import com.tradeshield.ui.LoginView;
+import com.tradeshield.ui.SignupView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -21,13 +23,31 @@ public class TradeShieldApp extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
-        LoginView loginView = new LoginView(new LoginService(), email -> showDashboard(primaryStage));
-        Scene scene = createStyledScene(loginView.create(), 960, 680);
         primaryStage.setTitle("TradeShield | Order Safety Console");
         primaryStage.setMinWidth(720);
         primaryStage.setMinHeight(600);
-        primaryStage.setScene(scene);
+        showLogin(primaryStage, null);
         primaryStage.show();
+    }
+
+    // Yashika[2510991179] - Signup
+    private void showLogin(Stage primaryStage, String notice) {
+        LoginView loginView = new LoginView(new LoginService(),
+                email -> showDashboard(primaryStage),
+                () -> showSignup(primaryStage),
+                notice);
+        primaryStage.setScene(createStyledScene(loginView.create(), 960, 680));
+        primaryStage.setMinWidth(720);
+        primaryStage.setMinHeight(600);
+    }
+
+    private void showSignup(Stage primaryStage) {
+        SignupView signupView = new SignupView(new SignupService(),
+                () -> showLogin(primaryStage, null),
+                successMessage -> showLogin(primaryStage, successMessage));
+        primaryStage.setScene(createStyledScene(signupView.create(), 960, 760));
+        primaryStage.setMinWidth(720);
+        primaryStage.setMinHeight(700);
     }
 
     private void showDashboard(Stage primaryStage) {
