@@ -23,6 +23,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import java.util.function.Consumer;
 
 /**
  * Builds the Stage 1 dashboard using standard JavaFX layout classes.
@@ -31,6 +32,12 @@ import javafx.scene.shape.Circle;
  * with simulated order, pricing, and risk data.</p>
  */
 public class DashboardView {
+
+    private final Consumer<String> pageNavigator;
+
+    public DashboardView(Consumer<String> pageNavigator) {
+        this.pageNavigator = pageNavigator;
+    }
 
     private final ObservableList<Order> submittedOrders = FXCollections.observableArrayList();
     private final TextField symbolField = new TextField();
@@ -69,8 +76,7 @@ public class DashboardView {
                 navigationButton("Dashboard", true),
                 navigationButton("Simulated Orders", false),
                 navigationButton("Risk Controls", false),
-                navigationButton("Audit History", false),
-                navigationButton("Replay Mode", false)
+                navigationButton("Audit History", false)
         );
         navigation.getStyleClass().add("navigation");
 
@@ -412,6 +418,9 @@ public class DashboardView {
         Button button = new Button(text);
         button.setMaxWidth(Double.MAX_VALUE);
         button.getStyleClass().add(active ? "navigation-button-active" : "navigation-button");
+        if (!active) {
+            button.setOnAction(event -> pageNavigator.accept(text));
+        }
         return button;
     }
 

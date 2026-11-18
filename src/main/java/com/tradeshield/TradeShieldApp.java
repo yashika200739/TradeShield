@@ -4,6 +4,7 @@ import com.tradeshield.auth.LoginService;
 import com.tradeshield.auth.SignupService;
 import com.tradeshield.ui.DashboardView;
 import com.tradeshield.ui.LoginView;
+import com.tradeshield.ui.PlaceholderPageView;
 import com.tradeshield.ui.SignupView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -51,8 +52,17 @@ public class TradeShieldApp extends Application {
     }
 
     private void showDashboard(Stage primaryStage) {
-        DashboardView dashboardView = new DashboardView();
-        primaryStage.setScene(createStyledScene(dashboardView.create(), 1280, 800));
+        showPage(primaryStage, "Dashboard");
+    }
+
+    private void showPage(Stage primaryStage, String page) {
+        javafx.scene.Parent root = switch (page) {
+            case "Dashboard" -> new DashboardView(nextPage -> showPage(primaryStage, nextPage)).create();
+            case "Simulated Orders", "Risk Controls", "Audit History" ->
+                    new PlaceholderPageView(page, nextPage -> showPage(primaryStage, nextPage)).create();
+            default -> throw new IllegalArgumentException("Unknown page: " + page);
+        };
+        primaryStage.setScene(createStyledScene(root, 1280, 800));
         primaryStage.setMinWidth(1080);
         primaryStage.setMinHeight(700);
     }
