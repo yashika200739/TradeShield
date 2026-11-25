@@ -17,7 +17,7 @@
 ## Start in IntelliJ IDEA
 1. Install **JDK 17 or later** and open the **TradeShield** folder in IntelliJ IDEA.
 2. If prompted, load the project as a Maven project and select a JDK 17+ Project SDK.
-3. In the Maven tool window, run **Plugins > exec > exec:java**, or open `src/main/java/com/tracecart/app/Main.java` and run `Main.main()`.
+3. In the Maven tool window, run **Plugins > exec > exec:java**, or open `src/main/java/com/tradeshield/app/Main.java` and run `Main.main()`.
 4. On first run `data/tradeshield.db` is created with sample products, batches, and one demo administrator.
 
 ### Demo admin login
