@@ -1,23 +1,17 @@
 package com.tradeshield.db;
 
 import java.sql.*;
+
 public class Schema {
     public static void create() throws SQLException {
         try (Connection c = Database.connect(); Statement s = c.createStatement()) {
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, role TEXT NOT NULL)");
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, category TEXT NOT NULL, price REAL NOT NULL CHECK(price > 0))");
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS batches (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER NOT NULL REFERENCES products(id), code TEXT UNIQUE NOT NULL, quantity INTEGER NOT NULL CHECK(quantity >= 0), recalled INTEGER NOT NULL DEFAULT 0)");
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id), total REAL NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)");
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS order_items (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER NOT NULL REFERENCES orders(id), batch_id INTEGER NOT NULL REFERENCES batches(id), quantity INTEGER NOT NULL CHECK(quantity > 0), price REAL NOT NULL)");
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS claims (id INTEGER PRIMARY KEY AUTOINCREMENT, item_id INTEGER NOT NULL REFERENCES order_items(id), user_id INTEGER NOT NULL REFERENCES users(id), type TEXT NOT NULL, reason TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'PENDING')");
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS recalls (id INTEGER PRIMARY KEY AUTOINCREMENT, batch_id INTEGER UNIQUE NOT NULL REFERENCES batches(id), reason TEXT NOT NULL)");
-            s.executeUpdate("INSERT OR IGNORE INTO users(id,name,email,password,role) VALUES(1,'Admin','admin@tradeshield.com','admin123','ADMIN')");
-            try (ResultSet r = s.executeQuery("SELECT COUNT(*) FROM products")) {
-                if (r.next() && r.getInt(1) == 0) {
-                    s.executeUpdate("INSERT INTO products(name,category,price) VALUES('Laptop','Electronics',45000),('Headphones','Electronics',1500),('Notebook','Stationery',80)");
-                    s.executeUpdate("INSERT INTO batches(product_id,code,quantity) VALUES(1,'LAP-A',10),(1,'LAP-B',8),(2,'HEAD-A',20),(3,'NOTE-A',50)");
-                }
-            }
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS users (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(100) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, role VARCHAR(50) NOT NULL, PRIMARY KEY (id), UNIQUE KEY uq_users_email (email)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS products (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(150) NOT NULL, category VARCHAR(100) NOT NULL, price DECIMAL(12,2) NOT NULL, PRIMARY KEY (id), CONSTRAINT chk_products_price CHECK (price > 0)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS batches (id INT NOT NULL AUTO_INCREMENT, product_id INT NOT NULL, code VARCHAR(100) NOT NULL, quantity INT NOT NULL, recalled TINYINT NOT NULL DEFAULT 0, PRIMARY KEY (id), UNIQUE KEY uq_batches_code (code), KEY idx_batches_product_id (product_id), CONSTRAINT chk_batches_quantity CHECK (quantity >= 0), CONSTRAINT fk_batches_product FOREIGN KEY (product_id) REFERENCES products(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS orders (id INT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, total DECIMAL(12,2) NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id), KEY idx_orders_user_id (user_id), CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS order_items (id INT NOT NULL AUTO_INCREMENT, order_id INT NOT NULL, batch_id INT NOT NULL, quantity INT NOT NULL, price DECIMAL(12,2) NOT NULL, PRIMARY KEY (id), KEY idx_order_items_order_id (order_id), KEY idx_order_items_batch_id (batch_id), CONSTRAINT chk_order_items_quantity CHECK (quantity > 0), CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id), CONSTRAINT fk_order_items_batch FOREIGN KEY (batch_id) REFERENCES batches(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS claims (id INT NOT NULL AUTO_INCREMENT, item_id INT NOT NULL, user_id INT NOT NULL, type VARCHAR(50) NOT NULL, reason TEXT NOT NULL, status VARCHAR(50) NOT NULL DEFAULT 'PENDING', PRIMARY KEY (id), KEY idx_claims_item_id (item_id), KEY idx_claims_user_id (user_id), CONSTRAINT fk_claims_item FOREIGN KEY (item_id) REFERENCES order_items(id), CONSTRAINT fk_claims_user FOREIGN KEY (user_id) REFERENCES users(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS recalls (id INT NOT NULL AUTO_INCREMENT, batch_id INT NOT NULL, reason TEXT NOT NULL, PRIMARY KEY (id), UNIQUE KEY uq_recalls_batch (batch_id), CONSTRAINT fk_recalls_batch FOREIGN KEY (batch_id) REFERENCES batches(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         }
     }
 }

@@ -1,71 +1,50 @@
 # TradeShield — Java Console Shopping and Inventory Project
 
-**College Java OOP + JDBC console project for VS Code / IntelliJ.** No React, web app, Spring, frameworks, or analytics dashboards.
+TradeShield is a Java 17 JDBC console application. It stores application records in MySQL; SQLite is no longer used by the application.
 
-## Start in VS Code
-1. Install **JDK 17 or later** and **Apache Maven**, then VS Code **Extension Pack for Java**.
-2. Open the **TradeShield** folder (the folder containing `pom.xml`).
-3. Open Terminal > New Terminal and run:
+## Configure MySQL
+
+1. Install and start MySQL Server, then create a database named `tradeshield_db` in MySQL Workbench.
+2. In the project root, copy `.env.example` to `.env` and enter your local MySQL username and password. Keep `.env` private; it is excluded by `.gitignore`.
+3. In MySQL Workbench, select `tradeshield_db`, open `database/schema.sql`, and execute it. The script creates the seven tables if they are missing. It does not create or drop a database, replace tables, or insert demo data.
+
+The project also creates any missing tables at startup using the same MySQL schema. Existing tables and rows are not dropped or overwritten. For an existing table with a different structure, update it deliberately in Workbench before running the application.
+
+## Test the connection and storage
+
+From a terminal opened at the project root, run:
+
+```shell
+mvn compile exec:java -Dtradeshield.mainClass=com.tradeshield.db.DatabaseConnectionTest
+```
+
+This explicitly selects `com.tradeshield.db.DatabaseConnectionTest` from `src/main/java/com/tradeshield/db/DatabaseConnectionTest.java`. It checks `SELECT 1` and the actual database name, runs `Schema.create()`, confirms all seven tables, then inserts and reads a temporary product inside a transaction and rolls it back.
+
+## Run in VS Code
+
+1. Install JDK 17 or later, Apache Maven, and the VS Code Extension Pack for Java.
+2. Open the TradeShield folder (the folder containing `pom.xml`) and its integrated terminal.
+3. Run:
 
    ```shell
    mvn clean compile exec:java
    ```
 
-   Alternatively on Windows double-click `run-windows.bat` (Maven must be on PATH).
-4. On first run `data/tradeshield.db` is created with sample products, batches, and one demo administrator.
+On Windows, `run-windows.bat` runs this same application command. The app starts with empty tables and adds no demo administrator, products, or batches. Register a user, then promote that account to the administrator role in Workbench if you need the admin menu: `UPDATE users SET role = 'ADMIN' WHERE email = 'the_registered_email';`. The admin menu can then add products and batches.
 
-## Start in IntelliJ IDEA
-1. Install **JDK 17 or later** and open the **TradeShield** folder in IntelliJ IDEA.
-2. If prompted, load the project as a Maven project and select a JDK 17+ Project SDK.
-3. In the Maven tool window, run **Plugins > exec > exec:java**, or open `src/main/java/com/tradeshield/app/Main.java` and run `Main.main()`.
-4. On first run `data/tradeshield.db` is created with sample products, batches, and one demo administrator.
+## Run in IntelliJ IDEA
 
-### Demo admin login
-- Email: `admin@tradeshield.com`
-- Password: `admin123`
+Open the folder as a Maven project with JDK 17+, then run `com.tradeshield.app.Main` or use Maven's `exec:java` goal.
 
-**Demo only:** Credentials are stored as plain text for classroom simplicity. Do not use real passwords or expose this application publicly. This is not production-ready authentication.
+## Database tables
 
-### Simple demo for viva
-1. Register a customer, login, browse products, view batches, buy 2 units from batch 1.
-2. View My Orders, then View Bill. Write down the order item ID under My Orders.
-3. Request a return or replacement using that order item ID.
-4. Logout, login as admin. View claims and approve/reject one.
-5. View batches, recall batch 1 as defective.
-6. Show affected customer orders and remaining stock for batch 1.
-7. Logout, login as customer, try to buy from recalled batch 1. The purchase must be refused.
+The MySQL schema contains seven linked tables: `users`, `products`, `batches`, `orders`, `order_items`, `claims`, and `recalls`. See `database/schema.sql` for the complete definitions.
 
-### Simple explanation of folder structure
-- `app` – entry-point `Main` class.
-- `db` – JDBC connection and table creation.
-- `model` – simple Java objects with fields, constructors and `toString`.
-- `dao` – SQL queries with JDBC `PreparedStatement` and `ResultSet`.
-- `service` – checks and business rules.
-- `ui` – console menus (`switch`, loops and Scanner).
-- `util` – input, validation and simple printing.
-- `exception` – custom stock exception.
+The database connection settings are read from `.env` (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, and `DB_PASSWORD`). Environment variables with those names can also provide the settings.
 
-**35 `.java` files, each containing one public class.**
+## Project structure
 
-### Database (7 linked tables)
-`users`, `products`, `batches`, `orders`, `order_items`, `claims`, `recalls`. Foreign keys and a batch ID connect orders to recalls.
-
-### Scope and limitations
-- One batch per order; customers may place several orders.
-- Invoice is displayed in the console, not exported as PDF.
-- Return/replacement workflow records and reviews requests; it does not send refunds or ship replacements.
-- Only one demo administrator is created.
-- A recall marks a batch as defective without deleting historical orders or changing remaining stock. New purchases from recalled batches are blocked.
-- SQLite uses JDBC through the `sqlite-jdbc` Maven dependency. Internet is required *once* to download this dependency unless it is cached already.
-
-### Check the Java class count
-PowerShell:
-
-```powershell
-(Get-ChildItem -Recurse -Filter *.java).Count
-```
-
-Expected: **35**.
-
-### Database and build verification
-The project targets Java 17 and uses SQLite through the `sqlite-jdbc` Maven dependency. It creates `data/tradeshield.db`, its tables, and sample data on first run. No external MySQL server is used.
+- `app` — entry point
+- `db` — MySQL connection and schema setup
+- `dao` — prepared JDBC queries and updates
+- `model`, `service`, `ui`, `util`, `exception` — application data and console workflows
