@@ -5,10 +5,25 @@ TradeShield is a Java 17 JDBC console application. It stores application records
 ## Configure MySQL
 
 1. Install and start MySQL Server, then create a database named `tradeshield_db` in MySQL Workbench.
-2. In the project root, copy `.env.example` to `.env` and enter your local MySQL username and password. Keep `.env` private; it is excluded by `.gitignore`.
+2. Create a `.env` file in the project root with your local connection settings. Replace the username and password placeholders with your own values, and keep the file private; `.env` is excluded by `.gitignore`.
+
+   ```properties
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_NAME=tradeshield_db
+   DB_USERNAME=your_local_mysql_user
+   DB_PASSWORD=your_local_mysql_password
+   ```
+
 3. In MySQL Workbench, select `tradeshield_db`, open `database/schema.sql`, and execute it. The script creates the seven tables if they are missing. It does not create or drop a database, replace tables, or insert demo data.
 
 The project also creates any missing tables at startup using the same MySQL schema. Existing tables and rows are not dropped or overwritten. For an existing table with a different structure, update it deliberately in Workbench before running the application.
+
+## Load the shared demo catalog
+
+After creating the schema, select `tradeshield_db` in MySQL Workbench and execute `database/seed-demo.sql`. It inserts the three sample products and their four batches. You can run it again safely: products with those names and batches with those codes are left unchanged. If a product name or batch code already exists with different details, the script preserves that row and skips it; review such a conflict manually. The seed contains no users or credentials.
+
+The same setup works for each teammate's own local MySQL instance: create a local `tradeshield_db`, configure that teammate's private `.env`, run `database/schema.sql`, then run `database/seed-demo.sql`. The application reads the database named by `DB_NAME`.
 
 ## Test the connection and storage
 
@@ -30,7 +45,7 @@ This explicitly selects `com.tradeshield.db.DatabaseConnectionTest` from `src/ma
    mvn clean compile exec:java
    ```
 
-On Windows, `run-windows.bat` runs this same application command. The app starts with empty tables and adds no demo administrator, products, or batches. Register a user, then promote that account to the administrator role in Workbench if you need the admin menu: `UPDATE users SET role = 'ADMIN' WHERE email = 'the_registered_email';`. The admin menu can then add products and batches.
+On Windows, `run-windows.bat` runs this same application command. The app creates missing tables but does not add a demo administrator or demo catalog automatically. Register a user, then promote that account to the administrator role in Workbench if you need the admin menu: `UPDATE users SET role = 'ADMIN' WHERE email = 'the_registered_email';`. The admin menu can then add products and batches.
 
 ## Run in IntelliJ IDEA
 
